@@ -123,6 +123,8 @@ export interface PayrollTransaction {
 
 export interface PayrollRun extends PayrollTransaction {
   employeeIds: string[];
+  /** Settlement-service receipt identifier; absent until settlement completes. */
+  receiptId?: string | null;
   executedAt?: string | null;
   transactionHash?: string | null;
   reconciliationStatus?: "pending" | "partial" | "complete" | "failed";
@@ -563,4 +565,3 @@ export interface AuditReadyTimeline {
   /** Whether this timeline has been exported for audit */
   exported: boolean;
 }
-

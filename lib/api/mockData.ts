@@ -180,6 +180,7 @@ export const MOCK_TRANSACTIONS: PayrollTransaction[] = [
 export const MOCK_PAYROLL_RUNS: PayrollRun[] = MOCK_TRANSACTIONS.map(tx => ({
   ...tx,
   employeeIds: ["emp_001", "emp_002"],
+  receiptId: tx.status === "verified" ? `rcpt_${tx.id}` : null,
   executedAt: tx.status === "verified" ? tx.timestamp : null,
   transactionHash: tx.txHash || null,
 }));
