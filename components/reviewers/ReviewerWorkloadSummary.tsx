@@ -18,7 +18,10 @@ interface ReviewerWorkload {
 }
 
 function buildWorkload(drafts: ApprovalDraft[], overdueAfterHours: number): ReviewerWorkload[] {
-  const cutoff = Date.now() - overdueAfterHours * 60 * 60 * 1000;
+  const normalizedOverdueAfterHours = Number.isFinite(overdueAfterHours) && overdueAfterHours >= 0
+    ? overdueAfterHours
+    : 48;
+  const cutoff = Date.now() - normalizedOverdueAfterHours * 60 * 60 * 1000;
   const workload = new Map<string, ReviewerWorkload>();
 
   for (const draft of drafts) {
@@ -32,7 +35,8 @@ function buildWorkload(drafts: ApprovalDraft[], overdueAfterHours: number): Revi
 
     if (draft.approvalStatus === "pending_executive_approval") {
       current.pending += 1;
-      if (new Date(draft.createdAt).getTime() < cutoff) current.overdue += 1;
+      const createdAt = new Date(draft.createdAt).getTime();
+      if (Number.isFinite(createdAt) && createdAt < cutoff) current.overdue += 1;
     }
     if (draft.approvalStatus === "approved") current.completed += 1;
     workload.set(reviewer, current);
@@ -88,7 +92,7 @@ export default function ReviewerWorkloadSummary({
       ) : (
         <div className="space-y-3" role="list" aria-label="Reviewer workload metrics">
           {workload.map((reviewer) => (
-            <div key={reviewer.name} role="listitem" className="rounded-md border border-gray-100 p-3">
+            <div key={reviewer.name} role="listitem" data-testid={`reviewer-workload-${reviewer.name}`} className="rounded-md border border-gray-100 p-3">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-sm font-medium text-gray-900">{reviewer.name}</h3>
                 {reviewer.overdue > 0 && (

@@ -60,4 +60,15 @@ describe("ReviewerWorkloadSummary", () => {
     render(<ReviewerWorkloadSummary drafts={[]} />);
     expect(screen.getByText("No reviewer actions are waiting for attention.")).toBeInTheDocument();
   });
+
+  it("does not mark malformed timestamps overdue or accept a negative threshold", () => {
+    render(
+      <ReviewerWorkloadSummary
+        drafts={[draft({ createdAt: "not-a-date" })]}
+        overdueAfterHours={-1}
+      />,
+    );
+
+    expect(screen.getByTestId("reviewer-workload-Alex Reviewer")).toHaveTextContent("0 overdue");
+  });
 });
